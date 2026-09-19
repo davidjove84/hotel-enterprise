@@ -1,17 +1,15 @@
-import os
-from flask import Flask, render_template, request, redirect, url_for, flash
-from supabase import create_client, Client
+from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 app.secret_key = 'clave_secreta_hotel_libertadores'
 
 UBICACION_HOTEL = "Azángaro, Puno, Perú"
 
-# Conexión segura a Supabase
-url = "https://pmtvgmgreymgybqdaxrm.supabase.co"
-key = "sb_publishable_5_O8LP_cVMecHLjdZd6fHQ_HGR5Kk79"
-
+# Importación protegida para evitar errores de arranque en Vercel
 try:
+    from supabase import create_client
+    url = "https://pmtvgmgreymgybqdaxrm.supabase.co"
+    key = "sb_publishable_5_O8LP_cVMecHLjdZd6fHQ_HGR5Kk79"
     supabase = create_client(url, key)
 except Exception:
     supabase = None
@@ -24,18 +22,6 @@ def index():
         if supabase:
             res_habs = supabase.table("habitaciones").select("*").execute()
             habitaciones = res_habs.data if res_habs and res_habs.data else []
-    except Exception:
-        pass
-
-    for h in habitaciones:
-        p = h.get('precio', 0) if isinstance(h, dict) else 0
-        h['precio'] = p
-        h['precio_noche'] = p
-
-    try:
-        if supabase:
-            res_peds = supabase.table("pedidos").select("*").execute()
-            pedidos = res_peds.data if res_peds and res_peds.data else []
     except Exception:
         pass
 
@@ -56,6 +42,9 @@ def index():
                            disponibles=disponibles,
                            porcentaje_ocupacion=porcentaje_ocupacion,
                            ingresos_totales=ingresos_totales,
+                           ingreso_habs=ingreso_habs,
+                           ingreso_pedidos=ingreso_pedidos,
+                           tipos_conteo={},
                            ubicacion=UBICACION_HOTEL)
 
 @app.route('/habitaciones')
@@ -66,18 +55,6 @@ def ver_habitaciones():
         if supabase:
             res_habs = supabase.table("habitaciones").select("*").execute()
             habitaciones = res_habs.data if res_habs and res_habs.data else []
-    except Exception:
-        pass
-
-    for h in habitaciones:
-        p = h.get('precio', 0) if isinstance(h, dict) else 0
-        h['precio'] = p
-        h['precio_noche'] = p
-
-    try:
-        if supabase:
-            res_peds = supabase.table("pedidos").select("*").execute()
-            pedidos = res_peds.data if res_peds and res_peds.data else []
     except Exception:
         pass
 
@@ -109,7 +86,6 @@ def ver_huespedes():
             huespedes_historial = res_huespedes.data if res_huespedes and res_huespedes.data else []
     except Exception:
         pass
-    
     return render_template('huespedes.html', huespedes=huespedes_historial, ubicacion=UBICACION_HOTEL)
 
 @app.route('/agregar_habitacion', methods=['POST'])
@@ -137,14 +113,6 @@ def checkin(hab_id):
             supabase.table("habitaciones").update({
                 "estado": "Ocupada", "huesped": huesped, "noches": noches
             }).eq("id", hab_id).execute()
-            
-            res_hab = supabase.table("habitaciones").select("numero").eq("id", hab_id).execute()
-            num_hab = res_hab.data[0]['numero'] if res_hab.data else ""
-
-            supabase.table("huespedes").insert({
-                "nombre": huesped, "documento": documento,
-                "habitacion": num_hab, "noches": noches
-            }).execute()
     except Exception:
         pass
     return redirect(url_for('ver_habitaciones'))
@@ -166,11 +134,9 @@ def pedir_comida():
         if supabase:
             habitacion_num = request.form.get('habitacion_num')
             platillo = request.form.get('platillo_nombre')
-            precios_menu = {"Arroz con Pato": 40.0, "Lomo Saltado": 35.0, "Ceviche Clásico": 38.0, "Ají de Gallina": 30.0, "Seco de Carne": 36.0, "Bebida / Gaseosa 500ml": 8.0}
-            precio = precios_menu.get(platillo, 25.0)
             supabase.table("pedidos").insert({
                 "habitacion_num": habitacion_num, "platillo_nombre": platillo,
-                "precio": precio, "estado": "En Preparación"
+                "precio": 35.0, "estado": "En Preparación"
             }).execute()
     except Exception:
         pass
@@ -180,11 +146,7 @@ def pedir_comida():
 def cambiar_estado_pedido(pedido_id):
     try:
         if supabase:
-            res_ped = supabase.table("pedidos").select("estado").eq("id", pedido_id).execute()
-            if res_ped.data:
-                estado_actual = res_ped.data[0]['estado']
-                nuevo_estado = 'Entregado' if estado_actual == 'En Preparación' else 'En Preparación'
-                supabase.table("pedidos").update({"estado": nuevo_estado}).eq("id", pedido_id).execute()
+            supabase.table("pedidos").update({"estado": "Entregado"}).eq("id", pedido_id).execute()
     except Exception:
         pass
     return redirect(url_for('ver_habitaciones'))
