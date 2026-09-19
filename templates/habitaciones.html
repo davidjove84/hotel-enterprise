@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Libertadores - Gestión de Habitaciones</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+</head>
+<body class="bg-light">
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="{{ url_for('index') }}">
+                🏨 Hotel Libertadores
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="{{ url_for('ver_habitaciones') }}">
+                            <i class="bi bi-door-open"></i> Habitaciones y Pedidos
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-4">
+        
+        <!-- Mensajes Flash de Flask -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="alert alert-{{ category if category in ['success', 'danger', 'warning', 'info'] else 'info' }} alert-dismissible fade show shadow-sm" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+              </div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <h1 class="mb-4 fw-bold text-dark">Gestión de Habitaciones y Servicios</h1>
+        
+        <!-- Tarjetas de Estadísticas (KPIs) -->
+        <div class="row text-center mb-4 g-3">
+            <div class="col-md-3">
+                <div class="card p-3 shadow-sm border-0 bg-white">
+                    <h6 class="text-muted">Total Habitaciones</h6>
+                    <h3 class="fw-bold text-primary">{{ total_habs }}</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card p-3 shadow-sm border-0 bg-success text-white">
+                    <h6>Disponibles</h6>
+                    <h3 class="fw-bold">{{ disponibles }}</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card p-3 shadow-sm border-0 bg-danger text-white">
+                    <h6>Ocupadas</h6>
+                    <h3 class="fw-bold">{{ ocupadas }}</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card p-3 shadow-sm border-0 bg-info text-white">
+                    <h6>Ocupación</h6>
+                    <h3 class="fw-bold">{{ porcentaje_ocupacion }}%</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Columna Izquierda: Listado de Habitaciones -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-list-nested"></i> Listado de Habitaciones</h5>
+                        <!-- Botón para abrir modal de agregar habitación -->
+                        <button class="btn btn-light btn-sm fw-bold text-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarHabitacion">
+                            <i class="bi bi-plus-lg"></i> Nueva Habitación
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped align-middle mb-0">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>N°</th>
+                                        <th>Tipo</th>
+                                        <th>Precio</th>
+                                        <th>Estado</th>
+                                        <th>Huésped</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for hab in habitaciones %}
+                                    <tr>
+                                        <td><strong>{{ hab.numero }}</strong></td>
+                                        <td>{{ hab.tipo }}</td>
+                                        <td>S/. {{ "%.2f"|format(hab.precio_noche) }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ 'danger' if hab.estado == 'Ocupada' else 'success' }}">
+                                                {{ hab.estado }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            {% if hab.huesped %}
+                                                <small class="fw-bold">{{ hab.huesped }}</small><br>
+                                                <span class="text-muted" style="font-size: 0.8rem;">({{ hab.noches }} noches)</span>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if hab.estado == 'Disponible' %}
+                                                <form action="{{ url_for('checkin', hab_id=hab.id) }}" method="POST" class="d-flex gap-1 align-items-center">
+                                                    <input type="text" name="huesped" placeholder="Huésped" class="form-control form-control-sm" required style="width: 100px;">
+                                                    <input type="number" name="noches" value="1" min="1" class="form-control form-control-sm" required style="width: 55px;" title="Noches">
+                                                    <button type="submit" class="btn btn-success btn-sm" title="Guardar Check-in"><i class="bi bi-box-arrow-in-right"></i></button>
+                                                </form>
+                                            {% else %}
+                                                <a href="{{ url_for('checkout', hab_id=hab.id) }}" class="btn btn-warning btn-sm text-dark fw-bold" title="Liberar habitación">
+                                                    <i class="bi bi-box-arrow-left"></i> Checkout
+                                                </a>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna Derecha: Pedidos a Cocina / Restaurante -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0"><i class="bi bi-cup-hot"></i> Pedir Comida a Habitación</h5>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ url_for('pedir_comida') }}" method="POST">
+                            <div class="mb-3">
+                                <label for="habitacion_num" class="form-label">Habitación Ocupada</label>
+                                <select class="form-select form-select-sm" id="habitacion_num" name="habitacion_num" required>
+                                    <option value="" disabled selected>Seleccione habitación...</option>
+                                    {% for hab in habitaciones %}
+                                        {% if hab.estado == 'Ocupada' %}
+                                            <option value="{{ hab.numero }}">N° {{ hab.numero }} - {{ hab.huesped }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="platillo_nombre" class="form-label">Platillo / Bebida</label>
+                                <select class="form-select form-select-sm" id="platillo_nombre" name="platillo_nombre" required>
+                                    <option value="Lomo Saltado">Lomo Saltado (S/. 35.00)</option>
+                                    <option value="Arroz con Pato">Arroz con Pato (S/. 40.00)</option>
+                                    <option value="Ceviche Clásico">Ceviche Clásico (S/. 38.00)</option>
+                                    <option value="Ají de Gallina">Ají de Gallina (S/. 30.00)</option>
+                                    <option value="Seco de Carne">Seco de Carne (S/. 36.00)</option>
+                                    <option value="Bebida / Gaseosa 500ml">Bebida / Gaseosa 500ml (S/. 8.00)</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-dark btn-sm w-100 fw-bold">Enviar Pedido a Cocina</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Tabla de Pedidos Activos -->
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-secondary text-white">
+                        <h5 class="mb-0 fs-6"><i class="bi bi-receipt"></i> Pedidos en Curso</h5>
+                    </div>
+                    <div class="card-body p-2">
+                        <div class="table-responsive">
+                            <table class="table table-sm align-middle mb-0" style="font-size: 0.85rem;">
+                                <thead>
+                                    <tr>
+                                        <th>Hab.</th>
+                                        <th>Platillo</th>
+                                        <th>Estado</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for p in pedidos %}
+                                    <tr>
+                                        <td><strong>#{{ p.habitacion_num }}</strong></td>
+                                        <td>{{ p.platillo_nombre }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ 'warning text-dark' if p.estado == 'En Preparación' else 'success' }}">
+                                                {{ p.estado }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('cambiar_estado_pedido', pedido_id=p.id) }}" class="btn btn-outline-dark btn-sm py-0 px-1" style="font-size: 0.75rem;">
+                                                Cambiar
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-2">No hay pedidos activos.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Agregar Nueva Habitación -->
+    <div class="modal fade" id="modalAgregarHabitacion" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form action="{{ url_for('agregar_habitacion') }}" method="POST">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="modalLabel">Registrar Nueva Habitación</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="numero" class="form-label">Número de Habitación</label>
+                            <input type="text" class="form-control" id="numero" name="numero" placeholder="Ej. 121" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="tipo" class="form-label">Tipo de Habitación</label>
+                            <select class="form-select" id="tipo" name="tipo" required>
+                                <option value="Simple Deluxe">Simple Deluxe</option>
+                                <option value="Habitación Doble">Habitación Doble</option>
+                                <option value="Doble Ejecutiva">Doble Ejecutiva</option>
+                                <option value="Matrimonial Gold">Matrimonial Gold</option>
+                                <option value="Suite Deluxe">Suite Deluxe</option>
+                                <option value="Suite Presidencial">Suite Presidencial</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="precio" class="form-label">Precio por Noche (S/.)</label>
+                            <input type="number" step="0.5" class="form-control" id="precio" name="precio" placeholder="100.0" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary btn-sm">Guardar Habitación</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
