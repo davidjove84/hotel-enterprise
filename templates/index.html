@@ -3,61 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hotel Libertadores - Panel de Gestión</title>
+    <title>Hotel Libertadores - Sistema de Gestión</title>
     <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- FontAwesome para iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Estilos personalizados profesionales -->
+    <style>
+        body { background-color: #f4f6f9; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+        .navbar-custom { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
+        .card { border: none; border-radius: 0.75rem; box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075); transition: all 0.2s ease-in-out; }
+        .card:hover { box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.05); }
+        .stat-card { border-left: 4px solid transparent; }
+        .table-custom th { background-color: #f8fafc; font-weight: 600; color: #475569; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+        .badge-status { padding: 0.5em 0.8em; font-weight: 500; font-size: 0.75rem; border-radius: 50rem; }
+    </style>
 </head>
-<body class="bg-light">
+<body>
 
     <!-- Navbar Superior -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="/"><i class="fa-solid fa-hotel me-2"></i>Hotel Libertadores</a>
-            <span class="navbar-text text-light small d-none d-md-inline">
-                <i class="fa-solid fa-location-dot me-1 text-danger"></i> {{ ubicacion }}
-            </span>
-            <div class="d-flex">
-                <a href="/habitaciones" class="btn btn-outline-light btn-sm me-2 active"><i class="fa-solid fa-bed me-1"></i> Habitaciones</a>
-                <a href="/huespedes" class="btn btn-outline-light btn-sm"><i class="fa-solid fa-users me-1"></i> Huéspedes</a>
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom shadow-sm">
+        <div class="container-fluid px-4 py-2">
+            <a class="navbar-brand fw-bold d-flex align-items-center" href="/">
+                <div class="bg-warning text-dark p-2 rounded-3 me-2 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;">
+                    <i class="fa-solid fa-hotel"></i>
+                </div>
+                <span>Hotel Libertadores</span>
+            </a>
+            <div class="d-flex align-items-center">
+                <span class="text-light small d-none d-md-inline me-4 bg-dark bg-opacity-50 px-3 py-1.5 rounded-pill border border-secondary border-opacity-25">
+                    <i class="fa-solid fa-location-dot me-1 text-danger"></i> {{ ubicacion }}
+                </span>
+                <div class="btn-group">
+                    <a href="/habitaciones" class="btn btn-outline-light btn-sm px-3"><i class="fa-solid fa-bed me-1"></i> Habitaciones</a>
+                    <a href="/huespedes" class="btn btn-outline-light btn-sm px-3"><i class="fa-solid fa-users me-1"></i> Huéspedes</a>
+                </div>
             </div>
         </div>
     </nav>
 
-    <div class="container my-4">
+    <div class="container-fluid px-4 my-4">
         
         <!-- Tarjetas de Estadísticas Principales -->
         <div class="row g-3 mb-4">
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm bg-white border-start border-primary border-4">
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card border-start border-primary py-2">
                     <div class="card-body">
-                        <h6 class="text-muted text-uppercase fs-7 mb-1">Total Habitaciones</h6>
-                        <h3 class="fw-bold mb-0 text-primary">{{ total_habs }}</h3>
+                        <div class="text-muted text-uppercase small fw-bold mb-1">Total Habitaciones</div>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h2 class="fw-bold mb-0 text-dark">{{ total_habs }}</h2>
+                            <div class="bg-primary bg-opacity-15 text-primary p-3 rounded-3"><i class="fa-solid fa-door-open fa-lg"></i></div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm bg-white border-start border-danger border-4">
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card border-start border-danger py-2">
                     <div class="card-body">
-                        <h6 class="text-muted text-uppercase fs-7 mb-1">Ocupadas</h6>
-                        <h3 class="fw-bold mb-0 text-danger">{{ ocupadas }}</h3>
+                        <div class="text-muted text-uppercase small fw-bold mb-1">Ocupadas</div>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h2 class="fw-bold mb-0 text-danger">{{ ocupadas }}</h2>
+                            <div class="bg-danger bg-opacity-15 text-danger p-3 rounded-3"><i class="fa-solid fa-user-lock fa-lg"></i></div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm bg-white border-start border-success border-4">
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card border-start border-success py-2">
                     <div class="card-body">
-                        <h6 class="text-muted text-uppercase fs-7 mb-1">Disponibles</h6>
-                        <h3 class="fw-bold mb-0 text-success">{{ disponibles }}</h3>
+                        <div class="text-muted text-uppercase small fw-bold mb-1">Disponibles</div>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h2 class="fw-bold mb-0 text-success">{{ disponibles }}</h2>
+                            <div class="bg-success bg-opacity-15 text-success p-3 rounded-3"><i class="fa-solid fa-circle-check fa-lg"></i></div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3">
-                <div class="card border-0 shadow-sm bg-white border-start border-warning border-4">
+            <div class="col-xl-3 col-md-6">
+                <div class="card stat-card border-start border-warning py-2">
                     <div class="card-body">
-                        <h6 class="text-muted text-uppercase fs-7 mb-1">Ocupación</h6>
-                        <h3 class="fw-bold mb-0 text-warning">{{ porcentaje_ocupacion }}%</h3>
+                        <div class="text-muted text-uppercase small fw-bold mb-1">Tasa de Ocupación</div>
+                        <div class="d-flex align-items-center justify-content-between">
+                            <h2 class="fw-bold mb-0 text-warning">{{ porcentaje_ocupacion }}%</h2>
+                            <div class="bg-warning bg-opacity-15 text-warning p-3 rounded-3"><i class="fa-solid fa-chart-pie fa-lg"></i></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -66,21 +95,24 @@
         <!-- Panel Financiero (Caja / Desglose) -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="card border-0 shadow-sm bg-dark text-white">
-                    <div class="card-body p-4">
-                        <h5 class="card-title fw-bold mb-3"><i class="fa-solid fa-wallet me-2 text-warning"></i> Control de Caja y Finanzas</h5>
-                        <div class="row text-center">
-                            <div class="col-md-4 border-end border-secondary">
-                                <span class="text-muted small d-block">Ingresos por Alojamiento</span>
-                                <h4 class="fw-bold text-success mt-1">S/ {{ "%.2f"|format(ingreso_habs) }}</h4>
+                <div class="card bg-dark text-white p-2">
+                    <div class="card-body p-3">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-warning text-dark p-2 rounded-2 me-2"><i class="fa-solid fa-wallet"></i></div>
+                            <h5 class="card-title fw-bold mb-0">Control de Caja y Finanzas</h5>
+                        </div>
+                        <div class="row text-center g-3">
+                            <div class="col-md-4 border-end border-secondary border-opacity-50">
+                                <span class="text-secondary small d-block text-uppercase fw-semibold">Ingresos por Alojamiento</span>
+                                <h3 class="fw-bold text-success mt-1">S/ {{ "%.2f"|format(ingreso_habs) }}</h3>
                             </div>
-                            <div class="col-md-4 border-end border-secondary">
-                                <span class="text-muted small d-block">Ingresos por Restaurante</span>
-                                <h4 class="fw-bold text-info mt-1">S/ {{ "%.2f"|format(ingreso_pedidos) }}</h4>
+                            <div class="col-md-4 border-end border-secondary border-opacity-50">
+                                <span class="text-secondary small d-block text-uppercase fw-semibold">Ingresos por Restaurante</span>
+                                <h3 class="fw-bold text-info mt-1">S/ {{ "%.2f"|format(ingreso_pedidos) }}</h3>
                             </div>
                             <div class="col-md-4">
-                                <span class="text-muted small d-block">Ingresos Totales</span>
-                                <h4 class="fw-bold text-warning mt-1">S/ {{ "%.2f"|format(ingresos_totales) }}</h4>
+                                <span class="text-secondary small d-block text-uppercase fw-semibold">Ingresos Totales</span>
+                                <h3 class="fw-bold text-warning mt-1">S/ {{ "%.2f"|format(ingresos_totales) }}</h3>
                             </div>
                         </div>
                     </div>
@@ -88,100 +120,100 @@
             </div>
         </div>
 
-        <!-- Botones de Filtrado de Habitaciones -->
-        <div class="row mb-4">
+        <!-- Botones de Filtrado -->
+        <div class="row mb-3">
             <div class="col-12">
-                <div class="d-flex gap-2">
-                    <a href="/habitaciones?estado=todos" class="btn btn-outline-dark {% if filtro_actual == 'todos' %}active{% endif %}">Todas</a>
-                    <a href="/habitaciones?estado=Disponible" class="btn btn-outline-success {% if filtro_actual == 'Disponible' %}active{% endif %}">Disponibles</a>
-                    <a href="/habitaciones?estado=Ocupada" class="btn btn-outline-danger {% if filtro_actual == 'Ocupada' %}active{% endif %}">Ocupadas</a>
+                <div class="btn-group shadow-sm bg-white p-1 rounded-3 border" role="group">
+                    <a href="/?estado=todos" class="btn btn-sm px-3 rounded-2 {% if filtro_actual == 'todos' %}btn-dark text-white{% else %}btn-light text-dark{% endif %}"><i class="fa-solid fa-th-list me-1"></i> Todas</a>
+                    <a href="/?estado=Disponible" class="btn btn-sm px-3 rounded-2 {% if filtro_actual == 'Disponible' %}btn-success text-white{% else %}btn-light text-success{% endif %}"><i class="fa-solid fa-check me-1"></i> Disponibles</a>
+                    <a href="/?estado=Ocupada" class="btn btn-sm px-3 rounded-2 {% if filtro_actual == 'Ocupada' %}btn-danger text-white{% else %}btn-light text-danger{% endif %}"><i class="fa-solid fa-lock me-1"></i> Ocupadas</a>
                 </div>
             </div>
         </div>
 
-        <!-- Fui de Secciones: Habitaciones y Formularios -->
+        <!-- Contenido Principal: Listado y Formularios -->
         <div class="row g-4">
             
-            <!-- Columna Izquierda: Listado de Habitaciones -->
+            <!-- Listado de Habitaciones -->
             <div class="col-lg-8">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-white py-3">
-                        <h5 class="mb-0 fw-bold"><i class="fa-solid fa-bed me-2 text-primary"></i> Gestión de Habitaciones</h5>
+                <div class="card h-100">
+                    <div class="card-header bg-white py-3 border-0 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-bed me-2 text-primary"></i> Gestión de Habitaciones</h5>
+                        <span class="badge bg-light text-dark border px-3 py-2">Total mostradas: {{ habitaciones|length }}</span>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body px-0 pb-0">
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead class="table-light">
+                            <table class="table table-hover align-middle mb-0 table-custom">
+                                <thead>
                                     <tr>
-                                        <th>Habitación</th>
+                                        <th class="ps-4">Habitación</th>
                                         <th>Tipo</th>
                                         <th>Precio</th>
                                         <th>Estado</th>
-                                        <th>Huésped / Noches</th>
-                                        <th class="text-end">Acciones</th>
+                                        <th>Huésped / Estancia</th>
+                                        <th class="text-end pe-4">Acciones</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for h in habitaciones %}
                                     <tr>
-                                        <td class="fw-bold">N° {{ h.numero }}</td>
-                                        <td>{{ h.tipo }}</td>
-                                        <td>S/ {{ h.precio }}</td>
+                                        <td class="ps-4 fw-bold text-dark fs-6">N° {{ h.numero }}</td>
+                                        <td><span class="text-secondary fw-semibold">{{ h.tipo }}</span></td>
+                                        <td class="fw-bold text-success">S/ {{ h.precio }}</td>
                                         <td>
                                             {% if h.estado == 'Ocupada' %}
-                                                <span class="badge bg-danger">Ocupada</span>
+                                                <span class="badge-status bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25">Ocupada</span>
                                             {% else %}
-                                                <span class="badge bg-success">Disponible</span>
+                                                <span class="badge-status bg-success bg-opacity-10 text-success border border-success border-opacity-25">Disponible</span>
                                             {% endif %}
                                         </td>
                                         <td>
                                             {% if h.estado == 'Ocupada' %}
-                                                <span class="d-block fw-semibold text-dark">{{ h.huesped }}</span>
-                                                <small class="text-muted"><i class="fa-solid fa-moon me-1"></i>{{ h.noches }} noches</small>
+                                                <span class="d-block fw-bold text-dark">{{ h.huesped }}</span>
+                                                <small class="text-muted"><i class="fa-solid fa-moon text-warning me-1"></i>{{ h.noches }} noches</small>
                                             {% else %}
                                                 <span class="text-muted">-</span>
                                             {% endif %}
                                         </td>
-                                        <td class="text-end">
+                                        <td class="text-end pe-4">
                                             {% if h.estado == 'Ocupada' %}
-                                                <a href="/checkout/{{ h.id }}" class="btn btn-outline-danger btn-sm" onclick="return confirm('¿Confirmar Check-out de esta habitación?');">
+                                                <a href="/checkout/{{ h.id }}" class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-semibold" onclick="return confirm('¿Confirmar Check-out de esta habitación?');">
                                                     <i class="fa-solid fa-arrow-right-from-bracket me-1"></i>Checkout
                                                 </a>
                                             {% else %}
-                                                <!-- Botón para abrir modal de Check-in -->
-                                                <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#checkinModal{{ h.id }}">
+                                                <button type="button" class="btn btn-success btn-sm rounded-pill px-3 fw-semibold shadow-sm" data-bs-toggle="modal" data-bs-target="#checkinModal{{ h.id }}">
                                                     <i class="fa-solid fa-arrow-right-to-bracket me-1"></i>Check-in
                                                 </button>
                                             {% endif %}
                                         </td>
                                     </tr>
 
-                                    <!-- Modal de Check-in para cada habitación -->
+                                    <!-- Modal Check-in -->
                                     <div class="modal fade" id="checkinModal{{ h.id }}" tabindex="-1" aria-hidden="true">
-                                        <div class="modal-dialog">
-                                            <div class="modal-content">
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title fw-bold">Check-in Habitación N° {{ h.numero }}</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content border-0 shadow">
+                                                <div class="modal-header bg-dark text-white">
+                                                    <h5 class="modal-title fw-bold fs-6"><i class="fa-solid fa-clipboard-user me-2 text-success"></i>Check-in Habitación N° {{ h.numero }}</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                                 </div>
                                                 <form action="/checkin/{{ h.id }}" method="POST">
-                                                    <div class="modal-body text-start">
+                                                    <div class="modal-body text-start p-4">
                                                         <div class="mb-3">
-                                                            <label class="form-label fw-semibold">Nombre del Huésped</label>
+                                                            <label class="form-label small fw-bold text-muted">Nombre del Huésped</label>
                                                             <input type="text" class="form-control" name="huesped" required placeholder="Ej. Juan Pérez">
                                                         </div>
                                                         <div class="mb-3">
-                                                            <label class="form-label fw-semibold">Documento de Identidad (DNI / Pasaporte)</label>
+                                                            <label class="form-label small fw-bold text-muted">Documento de Identidad (DNI / Pasaporte)</label>
                                                             <input type="text" class="form-control" name="documento" required placeholder="Ej. 87654321">
                                                         </div>
                                                         <div class="mb-3">
-                                                            <label class="form-label fw-semibold">Cantidad de Noches</label>
+                                                            <label class="form-label small fw-bold text-muted">Cantidad de Noches</label>
                                                             <input type="number" class="form-control" name="noches" value="1" min="1" required>
                                                         </div>
                                                     </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-                                                        <button type="submit" class="btn btn-success btn-sm">Confirmar Check-in</button>
+                                                    <div class="modal-footer bg-light">
+                                                        <button type="button" class="btn btn-outline-secondary btn-sm px-3" data-bs-dismiss="modal">Cancelar</button>
+                                                        <button type="submit" class="btn btn-success btn-sm px-4 fw-semibold">Confirmar Check-in</button>
                                                     </div>
                                                 </form>
                                             </div>
@@ -189,7 +221,10 @@
                                     </div>
                                     {% else %}
                                     <tr>
-                                        <td colspan="6" class="text-center text-muted py-4">No se encontraron habitaciones registradas.</td>
+                                        <td colspan="6" class="text-center text-muted py-5">
+                                            <i class="fa-solid fa-folder-open fa-3x mb-3 text-secondary opacity-50 d-block"></i>
+                                            No se encontraron habitaciones registradas.
+                                        </td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -199,43 +234,43 @@
                 </div>
             </div>
 
-            <!-- Columna Derecha: Formularios (Agregar Habitación y Pedir Comida) -->
+            <!-- Panel Derecho: Formularios -->
             <div class="col-lg-4">
                 
-                <!-- Formulario Agregar Habitación -->
-                <div class="card border-0 shadow-sm mb-4">
-                    <div class="card-header bg-white py-3">
-                        <h6 class="mb-0 fw-bold"><i class="fa-solid fa-plus-circle me-2 text-success"></i> Nueva Habitación</h6>
+                <!-- Agregar Habitación -->
+                <div class="card mb-4">
+                    <div class="card-header bg-white py-3 border-0">
+                        <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-plus-circle me-2 text-success"></i> Nueva Habitación</h6>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body pt-0">
                         <form action="/agregar_habitacion" method="POST">
                             <div class="mb-3">
-                                <label class="form-label small fw-semibold">Número de Habitación</label>
-                                <input type="text" class="form-control form-control-sm" name="numero" required placeholder="Ej. 104">
+                                <label class="form-label small fw-bold text-muted">Número de Habitación</label>
+                                <input type="text" class="form-control" name="numero" required placeholder="Ej. 104">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label small fw-semibold">Tipo de Habitación</label>
-                                <input type="text" class="form-control form-control-sm" name="tipo" required placeholder="Ej. Matrimonial / Doble">
+                                <label class="form-label small fw-bold text-muted">Tipo de Habitación</label>
+                                <input type="text" class="form-control" name="tipo" required placeholder="Ej. Matrimonial / Doble">
                             </div>
                             <div class="mb-3">
-                                <label class="form-label small fw-semibold">Precio por Noche (S/)</label>
-                                <input type="number" step="0.01" class="form-control form-control-sm" name="precio" required placeholder="Ej. 120.00">
+                                <label class="form-label small fw-bold text-muted">Precio por Noche (S/)</label>
+                                <input type="number" step="0.01" class="form-control" name="precio" required placeholder="Ej. 120.00">
                             </div>
-                            <button type="submit" class="btn btn-dark btn-sm w-100">Guardar Habitación</button>
+                            <button type="submit" class="btn btn-dark w-100 py-2 fw-semibold shadow-sm">Guardar Habitación</button>
                         </form>
                     </div>
                 </div>
 
-                <!-- Formulario Pedidos de Comida -->
-                <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-white py-3">
-                        <h6 class="mb-0 fw-bold"><i class="fa-solid fa-utensils me-2 text-warning"></i> Restaurante y Pedidos</h6>
+                <!-- Pedidos Restaurante -->
+                <div class="card">
+                    <div class="card-header bg-white py-3 border-0">
+                        <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-utensils me-2 text-warning"></i> Restaurante y Pedidos</h6>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body pt-0">
                         <form action="/pedir_comida" method="POST">
                             <div class="mb-3">
-                                <label class="form-label small fw-semibold">Habitación Destino</label>
-                                <select class="form-select form-select-sm" name="habitacion_num" required>
+                                <label class="form-label small fw-bold text-muted">Habitación Destino</label>
+                                <select class="form-select" name="habitacion_num" required>
                                     <option value="" disabled selected>Seleccione habitación...</option>
                                     {% for h in habitaciones %}
                                         {% if h.estado == 'Ocupada' %}
@@ -245,8 +280,8 @@
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label small fw-semibold">Platillo o Bebida</label>
-                                <select class="form-select form-select-sm" name="platillo_nombre" required>
+                                <label class="form-label small fw-bold text-muted">Platillo o Bebida</label>
+                                <select class="form-select" name="platillo_nombre" required>
                                     <option value="Arroz con Pato">Arroz con Pato - S/ 40.00</option>
                                     <option value="Lomo Saltado">Lomo Saltado - S/ 35.00</option>
                                     <option value="Ceviche Clásico">Ceviche Clásico - S/ 38.00</option>
@@ -255,7 +290,7 @@
                                     <option value="Bebida / Gaseosa 500ml">Bebida / Gaseosa 500ml - S/ 8.00</option>
                                 </select>
                             </div>
-                            <button type="submit" class="btn btn-warning btn-sm w-100 text-dark fw-semibold">Registrar Pedido</button>
+                            <button type="submit" class="btn btn-warning w-100 py-2 text-dark fw-bold shadow-sm">Registrar Pedido</button>
                         </form>
                     </div>
                 </div>
@@ -264,47 +299,49 @@
 
         </div>
 
-        <!-- Sección de Pedidos Activos en Cocina -->
+        <!-- Sección de Pedidos Activos -->
         <div class="row mt-4">
             <div class="col-12">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-white py-3">
-                        <h5 class="mb-0 fw-bold"><i class="fa-solid fa-bell-concierge me-2 text-info"></i> Estado de Pedidos en Curso</h5>
+                <div class="card">
+                    <div class="card-header bg-white py-3 border-0">
+                        <h5 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-bell-concierge me-2 text-info"></i> Estado de Pedidos en Curso</h5>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body px-0 pb-0">
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead class="table-light">
+                            <table class="table table-hover align-middle mb-0 table-custom">
+                                <thead>
                                     <tr>
-                                        <th>Habitación</th>
+                                        <th class="ps-4">Habitación</th>
                                         <th>Platillo / Bebida</th>
                                         <th>Precio</th>
                                         <th>Estado del Pedido</th>
-                                        <th class="text-end">Acción</th>
+                                        <th class="text-end pe-4">Acción</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for p in pedidos %}
                                     <tr>
-                                        <td class="fw-bold">N° {{ p.habitacion_num }}</td>
-                                        <td>{{ p.platillo_nombre }}</td>
-                                        <td>S/ {{ p.precio }}</td>
+                                        <td class="ps-4 fw-bold text-dark">N° {{ p.habitacion_num }}</td>
+                                        <td class="fw-semibold">{{ p.platillo_nombre }}</td>
+                                        <td class="text-success fw-bold">S/ {{ p.precio }}</td>
                                         <td>
                                             {% if p.estado == 'Entregado' %}
-                                                <span class="badge bg-success">Entregado</span>
+                                                <span class="badge-status bg-success bg-opacity-10 text-success border border-success border-opacity-25">Entregado</span>
                                             {% else %}
-                                                <span class="badge bg-warning text-dark">En Preparación</span>
+                                                <span class="badge-status bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25">En Preparación</span>
                                             {% endif %}
                                         </td>
-                                        <td class="text-end">
-                                            <a href="/cambiar_estado_pedido/{{ p.id }}" class="btn btn-outline-secondary btn-sm">
+                                        <td class="text-end pe-4">
+                                            <a href="/cambiar_estado_pedido/{{ p.id }}" class="btn btn-outline-secondary btn-sm rounded-pill px-3 fw-semibold">
                                                 <i class="fa-solid fa-rotate me-1"></i> Cambiar Estado
                                             </a>
                                         </td>
                                     </tr>
                                     {% else %}
                                     <tr>
-                                        <td colspan="5" class="text-center text-muted py-3">No hay pedidos activos en este momento.</td>
+                                        <td colspan="5" class="text-center text-muted py-4">
+                                            <i class="fa-solid fa-utensils opacity-50 me-1"></i> No hay pedidos activos en este momento.
+                                        </td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
