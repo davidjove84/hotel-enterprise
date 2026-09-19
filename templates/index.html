@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOTEL LIBERTADORES 🏨 - Sistema Integral</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts: Poppins y Playfair Display -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Leaflet CSS para el mapa -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        :root {
+            --bg-color: #0s172a;
+            --card-bg: #1e293b;
+            --accent-gold: #fbbf24;
+            --text-main: #f8fafc;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+        }
+
+        h1, h2, h3, .navbar-brand, .hero-title {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .navbar-custom {
+            background-color: rgba(15, 23, 42, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #334155;
+        }
+
+        .hero-section {
+            background: linear-gradient(rgba(15, 23, 42, 0.75), rgba(15, 23, 42, 0.85)), url('https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1920&q=80') no-repeat center center;
+            background-size: cover;
+            padding: 100px 0;
+            border-bottom: 3px solid var(--accent-gold);
+        }
+
+        .card-custom {
+            background-color: var(--card-bg);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card-custom:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px -5px rgba(251, 191, 36, 0.15);
+        }
+
+        .text-gold {
+            color: var(--accent-gold) !important;
+        }
+
+        .btn-gold {
+            background-color: var(--accent-gold);
+            color: #0f172a;
+            font-weight: 600;
+            border: none;
+        }
+
+        .btn-gold:hover {
+            background-color: #f59e0b;
+            color: #0f172a;
+        }
+
+        #map {
+            height: 350px;
+            width: 100%;
+            border-radius: 12px;
+            border: 1px solid #334155;
+        }
+        
+        .amenity-icon {
+            font-size: 2.5rem;
+            color: var(--accent-gold);
+        }
+
+        .room-scroll-container {
+            max-height: 520px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .room-scroll-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .room-scroll-container::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        .room-scroll-container::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body data-bs-theme="dark">
+
+    <!-- Notificaciones Flotantes -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100;">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="toast show align-items-center text-white bg-{% if category == 'success' %}success{% elif category == 'warning' %}warning text-dark{% else %}primary{% endif %} border-0 shadow-lg mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="d-flex">
+                            <div class="toast-body fw-semibold">{{ message }}</div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Barra de Navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top py-3">
+        <div class="container">
+            <a class="navbar-brand fw-bold fs-3 text-gold" href="#">HOTEL LIBERTADORES 🏨</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto align-items-lg-center gap-lg-4">
+                    <li class="nav-item"><a class="nav-link text-white" href="#">Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link text-white-50" href="#seccionHabitaciones">Habitaciones</a></li>
+                    <li class="nav-item"><a class="nav-link text-white-50" href="#seccionServicios">Servicios</a></li>
+                    <li class="nav-item"><a class="nav-link text-white-50" href="#seccionRoomService">Room Service</a></li>
+                    <li class="nav-item"><a class="nav-link text-white-50" href="#contactoSection">Ubicación</a></li>
+                </ul>
+                <div class="d-flex align-items-center gap-3 mt-3 mt-lg-0">
+                    <span id="live-clock" class="small text-gold fw-medium"></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Banner Principal -->
+    <header class="hero-section text-center text-white">
+        <div class="container py-5">
+            <h1 class="display-3 mb-3 fw-bold hero-title">Lujo, Confort y Tradición</h1>
+            <p class="lead text-white-50 mb-4 mx-auto" style="max-width: 600px;">Bienvenido al sistema gerencial y de experiencias del Hotel Libertadores. Administre su estadía con la máxima elegancia.</p>
+            <a href="#seccionHabitaciones" class="btn btn-gold btn-lg px-4 py-2 shadow">Ver Habitaciones</a>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <div class="container my-5">
+        
+        <!-- Dashboard / KPIs -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-3">
+                <div class="card card-custom p-3 border-start border-primary border-4 shadow-sm">
+                    <small class="text-muted fw-semibold text-uppercase">Total Habitaciones</small>
+                    <h3 class="fw-bold mt-2 mb-0 text-white">🛏️ 20</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-custom p-3 border-start border-success border-4 shadow-sm">
+                    <small class="text-muted fw-semibold text-uppercase">Disponibles / Ocupadas</small>
+                    <h3 class="fw-bold mt-2 mb-0 text-success">19 <span class="text-muted fs-6">libre</span> / 1 <span class="text-muted fs-6">ocupa</span></h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-custom p-3 border-start border-warning border-4 shadow-sm">
+                    <small class="text-muted fw-semibold text-uppercase">Ocupación Hotelera</small>
+                    <h3 class="fw-bold mt-2 mb-0 text-warning">📊 5%</h3>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-custom p-3 border-start border-info border-4 shadow-sm">
+                    <small class="text-muted fw-semibold text-uppercase">Ingresos Estimados</small>
+                    <h3 class="fw-bold mt-2 mb-0 text-info">💰 $240.00</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+            
+            <!-- Gestión de Habitaciones -->
+            <div class="col-lg-6" id="seccionHabitaciones">
+                <div class="card card-custom p-4 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="fw-bold mb-0 text-gold">🏨 Habitaciones y Huéspedes</h4>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <button type="button" class="btn btn-outline-light active" onclick="filtrarHabitaciones('todos')">Todas</button>
+                            <button type="button" class="btn btn-outline-success" onclick="filtrarHabitaciones('Disponible')">Libres</button>
+                            <button type="button" class="btn btn-outline-danger" onclick="filtrarHabitaciones('Ocupada')">Ocupadas</button>
+                        </div>
+                    </div>
+                    <hr class="border-secondary">
+                    
+                    <div class="room-scroll-container">
+                        <ul class="list-group list-group-flush my-2 bg-transparent" id="listaHabitaciones">
+                            
+                            {% set mis_20_habitaciones = [
+                                {'id': 1, 'numero': '101', 'tipo': 'Suite Deluxe', 'precio_noche': 120.00, 'estado': 'Ocupada', 'huesped': 'RUDY CALCINA', 'noches': 2, 'metodo_pago': 'Tarjeta de Crédito'},
+                                {'id': 2, 'numero': '102', 'tipo': 'Habitación Doble', 'precio_noche': 80.00, 'estado': 'Disponible', 'huesped': '', 'noches': 0, 'metodo_pago': ''},
+                                {'id': 3, 'numero': '103', 'tipo': 'Matrimonial Gold', 'precio_noche': 160.00, 'estado': 'Disponible', 'huesped': '', 'noches': 0, 'metodo_pago': ''},
+                                {'id': 4, 'numero': '104', 'tipo': 'Simple Deluxe', 'precio_noche': 85.00, 'estado': 'Disponible', 'huesped': '', 'noches': 0, 'metodo_pago': ''},
+                                {'id': 5, 'numero': '105', 'tipo': 'Doble Ejecutiva', 'precio_noche': 120.00, 'estado': 'Disponible', 'huesped': '', 'noches': 0, 'metodo_pago': ''},
+                                {'id': 6, 'numero': '106', 'tipo': 'Suite Presidencial', 'precio_noche': 250.00, 'estado': 'Disponible', 'huesped': '', 'noches': 0, 'metodo_pago': ''},
+                                {'id': 7, 'numero': '107', 'tipo': 'Matrimonial Gold', 'precio_noche': 160.00, 'estado': 'Disponible', 'huesped': '', 'noches': 0, 'metodo_pago': ''},
+                                {'id': 8, 'numero': '108', 'tipo': 'Simple Deluxe', 'precio_noche': 85.00, 'estado': 'Disponible', 'huesped': '', 'noches': 0, 'metodo_pago': ''},
+                                {'id': 9, 'numero': '109', 'tipo': 'Doble Ejecutiva', 'precio_noche': 120.00, 'estado': 'Disponible', 'huesped': '', 'noches': 0, 'metodo_pago': ''},
+                                {'id': 10, 'numero': '110', 'tipo': 'Suite Presidencial', 'precio_noche': 250.00, 'estado': 'Disponible', 'huesped': '', 'noches': 0, 'metodo_pago': ''},
+                                {'id': 11, 'numero': '111', 'tipo': 'Matrimonial Gold', 'precio_noche': 160.00, 'estado': 'Disponible', 'huesped': '', 'noches': 0, 'metodo_pago': ''},
+                                {'id': 12, 'numero': '112', 'tipo': 'Simple Deluxe', 'precio_noche': 85.00, 'estado': 'Disponible', 'huesped': '', 'noches': 0, 'metodo_pago': ''},
+                                {'id': 13, 'numero': '113', 'tipo': 'Doble Ejecutiva', 'precio_noche': 120.00, 'estado': 'Disponible', 'huesped': '', 'noches': 0, 'metodo_pago': ''},
+                                {'id': 14, 'numero': '114', 'tipo': 'Suite Presidencial', 'precio_noche': 250.00, 'estado': 'Disponible', 'huesped': '', 'noches': 0, 'metodo_pago': ''},
+                                {'id': 15, 'numero': '115', 'tipo': 'Matrimonial Gold', 'precio_noche': 160.00, 'estado': 'Disponible', 'huesped': '', 'noches': 0, 'metodo_pago': ''},
+                                {'id': 16, 'numero': '116', 'tipo': 'Simple Deluxe', 'precio_noche': 85.00, 'estado': 'Disponible', 'huesped': '', 'noches': 0, 'metodo_pago': ''},
+                                {'id': 17, 'numero': '117', 'tipo': 'Doble Ejecutiva', 'precio_noche': 120.00, 'estado': 'Disponible', 'huesped': '', 'noches': 0, 'metodo_pago': ''},
+                                {'id': 18, 'numero': '118', 'tipo': 'Suite Presidencial', 'precio_noche': 250.00, 'estado': 'Disponible', 'huesped': '', 'noches': 0, 'metodo_pago': ''},
+                                {'id': 19, 'numero': '119', 'tipo': 'Matrimonial Gold', 'precio_noche': 160.00, 'estado': 'Disponible', 'huesped': '', 'noches': 0, 'metodo_pago': ''},
+                                {'id': 20, 'numero': '120', 'tipo': 'Simple Deluxe', 'precio_noche': 85.00, 'estado': 'Disponible', 'huesped': '', 'noches': 0, 'metodo_pago': ''}
+                            ] %}
+
+                            {% for hab in mis_20_habitaciones %}
+                            <li class="list-group-item py-3 item-habitacion bg-transparent text-light border-secondary" data-estado="{{ hab.estado }}">
+                                <div class="row align-items-center g-3">
+                                    <div class="col-md-3">
+                                        <img src="https://images.unsplash.com/photo-1591088398332-8a7791972843?auto=format&fit=crop&w=600&q=80" 
+                                             alt="Habitación" class="img-fluid rounded shadow-sm" style="height: 65px; width: 100%; object-fit: cover;">
+                                    </div>
+                                    <div class="col-md-5">
+                                        <h5 class="mb-0 fw-bold text-white">#{{ hab.numero }}</h5>
+                                        <small class="text-muted">{{ hab.tipo }} - ${{ hab.precio_noche }}/noche</small>
+                                        {% if hab.estado == 'Ocupada' %}
+                                            <div class="text-success small mt-1">👤 Huésped: <strong>{{ hab.huesped }}</strong> ({{ hab.noches }} noches)</div>
+                                            <div class="text-warning small">💳 Pago: {{ hab.metodo_pago }}</div>
+                                        {% else %}
+                                            <div class="text-muted small mt-1 fst-italic">Disponible para check-in</div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-md-4 text-md-end">
+                                        <span class="badge {% if hab.estado == 'Disponible' %}bg-success{% else %}bg-danger{% endif %} px-2 py-1 mb-2 d-inline-block">{{ hab.estado }}</span>
+                                        <div>
+                                            {% if hab.estado == 'Disponible' %}
+                                                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalCheckin{{ hab.id }}">Check-in & Pago</button>
+                                            {% else %}
+                                                <button class="btn btn-sm btn-info text-dark fw-bold" data-bs-toggle="modal" data-bs-target="#modalCuenta{{ hab.id }}">Cuenta</button>
+                                                <a href="/checkout/{{ hab.id }}" class="btn btn-sm btn-outline-warning">Check-out</a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+
+                            <!-- Modal Check-in con Apartado de Pagos -->
+                            <div class="modal fade" id="modalCheckin{{ hab.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content card-custom text-light">
+                                        <div class="modal-header border-bottom border-secondary">
+                                            <h5 class="modal-title fw-bold text-gold">📥 Check-in y Reserva - Habitación #{{ hab.numero }}</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <form action="/checkin/{{ hab.id }}" method="POST">
+                                            <div class="modal-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Nombre del Huésped:</label>
+                                                    <input type="text" name="huesped" class="form-control bg-secondary text-light border-0" placeholder="Ej. Carlos Mendoza" required>
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Cantidad de Noches:</label>
+                                                    <input type="number" name="noches" id="noches_{{ hab.id }}" class="form-control bg-secondary text-light border-0" value="1" min="1" required oninput="calcularTotal({{ hab.id }}, {{ hab.precio_noche }})">
+                                                </div>
+                                                
+                                                <!-- APARTADO DE PAGOS -->
+                                                <div class="p-3 mb-3 rounded" style="background-color: #0f172a; border: 1px solid #334155;">
+                                                    <h6 class="fw-bold text-gold mb-3">💳 Apartado de Pagos</h6>
+                                                    
+                                                    <div class="mb-3">
+                                                        <label class="form-label small text-muted">Seleccione Método de Pago:</label>
+                                                        <select name="metodo_pago" class="form-select bg-secondary text-light border-0" required>
+                                                            <option value="" disabled selected>Elija una opción...</option>
+                                                            <option value="Tarjeta de Crédito">💳 Tarjeta de Crédito / Débito</option>
+                                                            <option value="Efectivo">💵 Efectivo (En Recepción)</option>
+                                                            <option value="Yape / Plin">📱 Billetera Digital (Yape / Plin)</option>
+                                                            <option value="Transferencia Bancaria">🏦 Transferencia Bancaria</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="d-flex justify-content-between align-items-center pt-2 border-top border-secondary">
+                                                        <span class="small text-muted">Tarifa por noche: ${{ hab.precio_noche }}</span>
+                                                        <span class="fs-6 fw-bold text-gold">Total a Cobrar: <span id="total_pago_{{ hab.id }}">${{ hab.precio_noche }}</span></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer border-top border-secondary">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                <button type="submit" class="btn btn-gold">Confirmar Pago y Check-in</button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Modal Cuenta / Facturación -->
+                            <div class="modal fade" id="modalCuenta{{ hab.id }}" tabindex="-1" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content card-custom text-light">
+                                        <div class="modal-header border-bottom border-secondary">
+                                            <h5 class="modal-title fw-bold text-gold">🧾 Cuenta - Habitación #{{ hab.numero }}</h5>
+                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <p><strong>Huésped:</strong> {{ hab.huesped }}</p>
+                                            <p><strong>Método de Pago Registrado:</strong> <span class="text-warning">{{ hab.metodo_pago }}</span></p>
+                                            <hr class="border-secondary">
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Hospedaje ({{ hab.noches }} noches):</span>
+                                                <strong>${{ hab.precio_noche * hab.noches }}</strong>
+                                            </div>
+                                            <div class="d-flex justify-content-between mb-2">
+                                                <span>Consumo Room Service:</span>
+                                                <strong>$0.00</strong>
+                                            </div>
+                                            <hr class="border-secondary">
+                                            <div class="d-flex justify-content-between fs-5 fw-bold text-gold">
+                                                <span>Total Liquidado:</span>
+                                                <span>${{ hab.precio_noche * hab.noches }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer border-top border-secondary">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                            <a href="/checkout/{{ hab.id }}" class="btn btn-success fw-bold">Finalizar y Emitir Factura</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                    <div class="mt-auto pt-4 border-top border-secondary">
+                        <h6 class="fw-bold mb-3 text-gold">➕ Registrar Nueva Habitación</h6>
+                        <form action="/agregar_habitacion" method="POST" class="row g-2">
+                            <div class="col-md-4"><input type="text" name="numero" class="form-control bg-secondary text-light border-0" placeholder="N° Cuarto" required></div>
+                            <div class="col-md-4"><input type="text" name="tipo" class="form-control bg-secondary text-light border-0" placeholder="Tipo (Ej. Suite)" required></div>
+                            <div class="col-md-4"><input type="number" step="0.01" name="precio" class="form-control bg-secondary text-light border-0" placeholder="Precio ($)" required></div>
+                            <div class="col-12 mt-2"><button type="submit" class="btn btn-gold w-100">Guardar Habitación</button></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Room Service y Pedidos -->
+            <div class="col-lg-6" id="seccionRoomService">
+                <div class="card card-custom p-4 h-100">
+                    <h4 class="mb-3 fw-bold text-gold">🍽️ Comandas de Cocina (Room Service)</h4>
+                    <hr class="border-secondary">
+                    <div class="table-responsive">
+                        <table class="table table-dark table-hover align-middle bg-transparent">
+                            <thead>
+                                <tr class="text-muted small">
+                                    <th>Hab.</th>
+                                    <th>Platillo / Bebida</th>
+                                    <th>Precio</th>
+                                    <th>Estado</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="fw-bold text-gold">#101</td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&w=200&q=80" 
+                                                 class="rounded" style="width: 35px; height: 35px; object-fit: cover;" alt="Plato">
+                                            <span>Lomo Saltado</span>
+                                        </div>
+                                    </td>
+                                    <td>$35.00</td>
+                                    <td><span class="badge bg-warning text-dark px-2 py-1">En Preparación</span></td>
+                                    <td><a href="#" class="btn btn-sm btn-outline-light">Cambiar</a></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-auto pt-3 border-top border-secondary">
+                        <h6 class="fw-bold mb-3 text-gold">🛎️ Simular Pedido a Cocina</h6>
+                        <form action="/pedir_comida" method="POST" class="row g-2">
+                            <div class="col-md-6">
+                                <input type="text" name="habitacion_num" class="form-control bg-secondary text-light border-0" placeholder="N° Habitación" required>
+                            </div>
+                            <div class="col-md-6">
+                                <select name="platillo_nombre" class="form-select bg-secondary text-light border-0" required>
+                                    <option value="" disabled selected>Seleccione platillo...</option>
+                                    <option value="Arroz con Pato">Arroz con Pato ($40)</option>
+                                    <option value="Lomo Saltado">Lomo Saltado ($35)</option>
+                                    <option value="Ceviche Clásico">Ceviche Clásico ($38)</option>
+                                    <option value="Ají de Gallina">Ají de Gallina ($30)</option>
+                                    <option value="Seco de Carne">Seco de Carne ($36)</option>
+                                </select>
+                            </div>
+                            <div class="col-12 mt-2">
+                                <button type="submit" class="btn btn-gold w-100">Enviar Pedido</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- SECCIÓN 1: Servicios del Hotel -->
+        <div id="seccionServicios" class="my-5 pt-4">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold text-gold">Nuestros Servicios Exclusivos</h2>
+                <p class="text-muted">Diseñados para brindar una experiencia de descanso inigualable.</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="card card-custom p-4 text-center h-100">
+                        <div class="amenity-icon mb-3">🏊‍♂️</div>
+                        <h5 class="fw-bold text-white">Piscina Infinita</h5>
+                        <p class="text-muted small mb-0">Disfrute de nuestra piscina climatizada con vista panorámica a la ciudad.</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card card-custom p-4 text-center h-100">
+                        <div class="amenity-icon mb-3">💆‍♀️</div>
+                        <h5 class="fw-bold text-white">Spa & Relax</h5>
+                        <p class="text-muted small mb-0">Tratamientos corporales, masajes profesionales y sauna a su disposición.</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card card-custom p-4 text-center h-100">
+                        <div class="amenity-icon mb-3">🍸</div>
+                        <h5 class="fw-bold text-white">Sky Bar & Lounge</h5>
+                        <p class="text-muted small mb-0">Cócteles de autor y los mejores piscos sours en la azotea del hotel.</p>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card card-custom p-4 text-center h-100">
+                        <div class="amenity-icon mb-3">🌐</div>
+                        <h5 class="fw-bold text-white">Wi-Fi Alta Velocidad</h5>
+                        <p class="text-muted small mb-0">Conexión de fibra óptica simétrica garantizada en todas las instalaciones.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN 2: Galería del Hotel -->
+        <div class="my-5 pt-4">
+            <div class="text-center mb-5">
+                <h2 class="fw-bold text-gold">Galería de Imágenes</h2>
+                <p class="text-muted">Un vistazo a nuestras instalaciones de primer nivel.</p>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80" class="img-fluid rounded shadow-sm w-100" style="height: 220px; object-fit: cover;" alt="Hotel Lobby">
+                </div>
+                <div class="col-md-4">
+                    <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80" class="img-fluid rounded shadow-sm w-100" style="height: 220px; object-fit: cover;" alt="Suite Deluxe">
+                </div>
+                <div class="col-md-4">
+                    <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=800&q=80" class="img-fluid rounded shadow-sm w-100" style="height: 220px; object-fit: cover;" alt="Restaurante">
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN DE CONTACTO Y MAPA -->
+        <div id="contactoSection" class="card card-custom p-4 p-md-5 mt-5">
+            <div class="row align-items-center g-4">
+                <div class="col-lg-6">
+                    <h3 class="fw-bold mb-3 text-gold">📍 Ubicación y Contacto</h3>
+                    <p class="text-muted mb-4">Visítanos o comunícate con recepción las 24 horas del día.</p>
+                    <div class="mb-3"><strong>Dirección:</strong> <span class="text-muted">Av. Larco 450, Miraflores, Lima</span></div>
+                    <div class="mb-3"><strong>Teléfono:</strong> <span class="text-muted">+51 (01) 456-7890</span></div>
+                    <div class="mb-4"><strong>Correo:</strong> <span class="text-muted">reservas@hotellibertadores.com</span></div>
+
+                    <form onsubmit="event.preventDefault(); alert('¡Mensaje enviado con éxito a recepción!');" class="row g-2">
+                        <div class="col-md-6"><input type="text" class="form-control bg-secondary text-light border-0" placeholder="Tu Nombre" required></div>
+                        <div class="col-md-6"><input type="email" class="form-control bg-secondary text-light border-0" placeholder="Correo" required></div>
+                        <div class="col-12"><textarea class="form-control bg-secondary text-light border-0" rows="2" placeholder="Escribe tu consulta..." required></textarea></div>
+                        <div class="col-12 mt-2"><button type="submit" class="btn btn-outline-warning w-100 fw-bold">Enviar Mensaje</button></div>
+                    </form>
+                </div>
+                <div class="col-lg-6">
+                    <div id="map"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Scripts Bootstrap y Leaflet -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // Cálculo dinámico del total en el modal de check-in según las noches
+        function calcularTotal(idHabitacion, precioNoche) {
+            const nochesInput = document.getElementById('noches_' + idHabitacion);
+            const totalSpan = document.getElementById('total_pago_' + idHabitacion);
+            const noches = parseInt(nochesInput.value) || 1;
+            const total = noches * precioNoche;
+            totalSpan.innerText = '$' + total.toFixed(2);
+        }
+
+        // Filtro de Habitaciones
+        function filtrarHabitaciones(estado) {
+            const items = document.querySelectorAll('.item-habitacion');
+            items.forEach(item => {
+                const estadoItem = item.getAttribute('data-estado');
+                if (estado === 'todos' || estadoItem === estado) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Reloj en vivo
+        function actualizarReloj() {
+            const relojElemento = document.getElementById('live-clock');
+            if (relojElemento) {
+                const ahora = new Date();
+                relojElemento.innerText = "🕒 " + ahora.toLocaleDateString() + " - " + ahora.toLocaleTimeString();
+            }
+        }
+        setInterval(actualizarReloj, 1000);
+        actualizarReloj();
+
+        // Inicialización del Mapa en Miraflores, Lima
+        document.addEventListener("DOMContentLoaded", function () {
+            const mapElement = document.getElementById('map');
+            if (mapElement) {
+                const lat = -12.1211;
+                const lng = -77.0297;
+                const map = L.map('map').setView([lat, lng], 15);
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors'
+                }).addTo(map);
+
+                L.marker([lat, lng]).addTo(map)
+                    .bindPopup('<b>Hotel Libertadores</b><br>Av. Larco 450, Miraflores.')
+                    .openPopup();
+            }
+        });
+    </script>
+</body>
+</html>
