@@ -4,42 +4,113 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hotel Libertadores - Gestión de Habitaciones</title>
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-</head>
-<body class="bg-light">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="{{ url_for('index') }}">
-                🏨 Hotel Libertadores
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #182338;
+            --card-bg-soft: #1e293b;
+            --border-subtle: #2b3b57;
+            --accent-gold: #fbbf24;
+            --accent-gold-soft: rgba(251, 191, 36, 0.12);
+            --text-main: #f8fafc;
+            --status-info: #60a5fa;
+            --status-success: #34d399;
+            --status-warning: #fbbf24;
+            --status-danger: #f87171;
+        }
+
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg-color); color: var(--text-main); }
+        h1, h4, h5, .navbar-brand { font-family: 'Playfair Display', serif; }
+
+        .navbar-custom {
+            background-color: rgba(15, 23, 42, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .text-gold { color: var(--accent-gold) !important; }
+
+        .card-custom {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+        }
+
+        .kpi-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-subtle);
+            border-radius: 14px;
+            padding: 1.1rem 1.3rem;
+            display: flex; align-items: center; gap: 0.9rem;
+        }
+        .kpi-icon {
+            width: 44px; height: 44px; min-width: 44px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+        }
+        .kpi-icon-info    { background: rgba(96, 165, 250, 0.12); color: var(--status-info); }
+        .kpi-icon-success { background: rgba(52, 211, 153, 0.12); color: var(--status-success); }
+        .kpi-icon-danger  { background: rgba(248, 113, 113, 0.12); color: var(--status-danger); }
+        .kpi-icon-warning { background: rgba(251, 191, 36, 0.12); color: var(--status-warning); }
+
+        .table-dark-custom { --bs-table-bg: transparent; --bs-table-color: var(--text-main); }
+        .table-responsive table { border-color: var(--border-subtle) !important; }
+        .table > :not(caption) > * > * { background-color: transparent; color: var(--text-main); border-color: var(--border-subtle); }
+        thead.table-header-custom { background-color: var(--card-bg-soft); }
+        thead.table-header-custom th { color: var(--text-main); font-weight: 600; border-color: var(--border-subtle); }
+
+        .badge-status {
+            font-weight: 600; font-size: 0.72rem; letter-spacing: 0.3px;
+            text-transform: uppercase; padding: 0.4em 0.75em; border-radius: 20px;
+        }
+
+        .form-control, .form-select { background-color: var(--card-bg-soft) !important; border: 1px solid var(--border-subtle); color: var(--text-main) !important; }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--accent-gold) !important;
+            box-shadow: 0 0 0 0.2rem rgba(251, 191, 36, 0.15) !important;
+            background-color: var(--card-bg-soft) !important; color: var(--text-main) !important;
+        }
+        .form-control::placeholder { color: #64748b; }
+
+        .btn-gold { background-color: var(--accent-gold); color: #0f172a; font-weight: 600; border: none; }
+        .btn-gold:hover { background-color: #f59e0b; color: #0f172a; }
+
+        .empty-state { text-align: center; padding: 2rem 1rem; color: #94a3b8; }
+    </style>
+</head>
+<body data-bs-theme="dark">
+
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top py-3">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand fw-bold text-gold" href="{{ url_for('index') }}">HOTEL LIBERTADORES 🏨</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('index') }}">
-                            <i class="bi bi-speedometer2"></i> Dashboard
-                        </a>
+                <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-3">
+                    <li class="nav-item"><a class="nav-link text-white-50" href="{{ url_for('index') }}">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link text-white active" href="{{ url_for('ver_habitaciones') }}">Habitaciones y Pedidos</a></li>
+                    <li class="nav-item"><a class="nav-link text-white-50" href="{{ url_for('ver_huespedes') }}">Huéspedes</a></li>
+                    <li class="nav-item"><a class="nav-link text-white-50" href="{{ url_for('ver_reservas') }}">Reservas</a></li>
+                    {% if current_user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle text-white" href="#" data-bs-toggle="dropdown">👤 {{ current_user.nombre }}</a>
+                        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark">
+                            <li><span class="dropdown-item-text small text-muted text-capitalize">{{ current_user.rol }}</span></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{{ url_for('logout') }}">Cerrar Sesión</a></li>
+                        </ul>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link active" href="{{ url_for('ver_habitaciones') }}">
-                            <i class="bi bi-door-open"></i> Habitaciones y Pedidos
-                        </a>
-                    </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
     </nav>
 
     <div class="container my-4">
-        
-        <!-- Mensajes Flash de Flask -->
+
         {% with messages = get_flashed_messages(with_categories=true) %}
           {% if messages %}
             {% for category, message in messages %}
@@ -51,51 +122,61 @@
           {% endif %}
         {% endwith %}
 
-        <h1 class="mb-4 fw-bold text-dark">Gestión de Habitaciones y Servicios</h1>
-        
-        <!-- Tarjetas de Estadísticas (KPIs) -->
+        <h1 class="mb-4 fw-bold text-gold h3">Gestión de Habitaciones y Servicios</h1>
+
         <div class="row text-center mb-4 g-3">
             <div class="col-md-3">
-                <div class="card p-3 shadow-sm border-0 bg-white">
-                    <h6 class="text-muted">Total Habitaciones</h6>
-                    <h3 class="fw-bold text-primary">{{ total_habs }}</h3>
+                <div class="kpi-card">
+                    <div class="kpi-icon kpi-icon-info">🛏️</div>
+                    <div class="text-start">
+                        <small class="text-muted fw-semibold text-uppercase">Total</small>
+                        <h3 class="fw-bold mt-1 mb-0">{{ total_habs }}</h3>
+                    </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card p-3 shadow-sm border-0 bg-success text-white">
-                    <h6>Disponibles</h6>
-                    <h3 class="fw-bold">{{ disponibles }}</h3>
+                <div class="kpi-card">
+                    <div class="kpi-icon kpi-icon-success">✅</div>
+                    <div class="text-start">
+                        <small class="text-muted fw-semibold text-uppercase">Disponibles</small>
+                        <h3 class="fw-bold mt-1 mb-0">{{ disponibles }}</h3>
+                    </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card p-3 shadow-sm border-0 bg-danger text-white">
-                    <h6>Ocupadas</h6>
-                    <h3 class="fw-bold">{{ ocupadas }}</h3>
+                <div class="kpi-card">
+                    <div class="kpi-icon kpi-icon-danger">🔴</div>
+                    <div class="text-start">
+                        <small class="text-muted fw-semibold text-uppercase">Ocupadas</small>
+                        <h3 class="fw-bold mt-1 mb-0">{{ ocupadas }}</h3>
+                    </div>
                 </div>
             </div>
             <div class="col-md-3">
-                <div class="card p-3 shadow-sm border-0 bg-info text-white">
-                    <h6>Ocupación</h6>
-                    <h3 class="fw-bold">{{ porcentaje_ocupacion }}%</h3>
+                <div class="kpi-card">
+                    <div class="kpi-icon kpi-icon-warning">📊</div>
+                    <div class="text-start">
+                        <small class="text-muted fw-semibold text-uppercase">Ocupación</small>
+                        <h3 class="fw-bold mt-1 mb-0">{{ porcentaje_ocupacion }}%</h3>
+                    </div>
                 </div>
             </div>
         </div>
 
         <div class="row g-4">
-            <!-- Columna Izquierda: Listado de Habitaciones -->
+            <!-- Listado de Habitaciones -->
             <div class="col-lg-8">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="bi bi-list-nested"></i> Listado de Habitaciones</h5>
-                        <!-- Botón para abrir modal de agregar habitación -->
-                        <button class="btn btn-light btn-sm fw-bold text-primary" data-bs-toggle="modal" data-bs-target="#modalAgregarHabitacion">
-                            <i class="bi bi-plus-lg"></i> Nueva Habitación
+                <div class="card card-custom">
+                    <div class="card-header bg-transparent border-bottom border-secondary d-flex justify-content-between align-items-center py-3">
+                        <h5 class="mb-0 text-gold fw-bold">🏨 Listado de Habitaciones</h5>
+                        <button class="btn btn-gold btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#modalAgregarHabitacion">
+                            + Nueva Habitación
                         </button>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table table-hover table-striped align-middle mb-0">
-                                <thead class="table-dark">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-header-custom">
                                     <tr>
                                         <th>N°</th>
                                         <th>Tipo</th>
@@ -110,9 +191,9 @@
                                     <tr>
                                         <td><strong>{{ hab.numero }}</strong></td>
                                         <td>{{ hab.tipo }}</td>
-                                        <td>S/. {{ "%.2f"|format(hab.precio_noche) }}</td>
+                                        <td>${{ "%.2f"|format(hab.precio_noche) }}</td>
                                         <td>
-                                            <span class="badge bg-{{ 'danger' if hab.estado == 'Ocupada' else 'success' }}">
+                                            <span class="badge badge-status {{ 'bg-danger' if hab.estado == 'Ocupada' else 'bg-success' }}">
                                                 {{ hab.estado }}
                                             </span>
                                         </td>
@@ -121,21 +202,73 @@
                                                 <small class="fw-bold">{{ hab.huesped }}</small><br>
                                                 <span class="text-muted" style="font-size: 0.8rem;">({{ hab.noches }} noches)</span>
                                             {% else %}
-                                                <span class="text-muted">-</span>
+                                                <span class="text-muted">—</span>
                                             {% endif %}
                                         </td>
                                         <td>
                                             {% if hab.estado == 'Disponible' %}
-                                                <form action="{{ url_for('checkin', hab_id=hab.id) }}" method="POST" class="d-flex gap-1 align-items-center">
-                                                    <input type="text" name="huesped" placeholder="Huésped" class="form-control form-control-sm" required style="width: 100px;">
-                                                    <input type="number" name="noches" value="1" min="1" class="form-control form-control-sm" required style="width: 55px;" title="Noches">
-                                                    <button type="submit" class="btn btn-success btn-sm" title="Guardar Check-in"><i class="bi bi-box-arrow-in-right"></i></button>
-                                                </form>
+                                                <button class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalCheckin{{ hab.id }}">
+                                                    Check-in & Pago
+                                                </button>
                                             {% else %}
-                                                <a href="{{ url_for('checkout', hab_id=hab.id) }}" class="btn btn-warning btn-sm text-dark fw-bold" title="Liberar habitación">
-                                                    <i class="bi bi-box-arrow-left"></i> Checkout
-                                                </a>
+                                                <form action="{{ url_for('checkout', hab_id=hab.id) }}" method="POST" class="d-inline">
+                                                    <button type="submit" class="btn btn-outline-warning btn-sm fw-bold">Check-out</button>
+                                                </form>
                                             {% endif %}
+                                        </td>
+                                    </tr>
+
+                                    <!-- Modal de Check-in completo: mismos campos que en el Dashboard -->
+                                    {% if hab.estado == 'Disponible' %}
+                                    <div class="modal fade" id="modalCheckin{{ hab.id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content card-custom text-light">
+                                                <div class="modal-header border-bottom border-secondary">
+                                                    <h5 class="modal-title fw-bold text-gold">📥 Check-in - Habitación #{{ hab.numero }}</h5>
+                                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                </div>
+                                                <form action="{{ url_for('checkin', hab_id=hab.id) }}" method="POST">
+                                                    <div class="modal-body">
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Nombre del Huésped:</label>
+                                                            <input type="text" name="huesped" class="form-control" placeholder="Ej. Carlos Mendoza" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Documento (DNI/CE/Pasaporte):</label>
+                                                            <input type="text" name="documento" class="form-control" placeholder="Ej. 12345678">
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Cantidad de Noches:</label>
+                                                            <input type="number" name="noches" value="1" min="1" class="form-control" required>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label class="form-label">Método de Pago:</label>
+                                                            <select name="metodo_pago" class="form-select" required>
+                                                                <option value="" disabled selected>Elija una opción...</option>
+                                                                <option value="Tarjeta de Crédito">💳 Tarjeta de Crédito / Débito</option>
+                                                                <option value="Efectivo">💵 Efectivo (En Recepción)</option>
+                                                                <option value="Yape / Plin">📱 Billetera Digital (Yape / Plin)</option>
+                                                                <option value="Transferencia Bancaria">🏦 Transferencia Bancaria</option>
+                                                            </select>
+                                                        </div>
+                                                        <p class="small text-muted mb-0">Tarifa por noche: ${{ "%.2f"|format(hab.precio_noche) }}</p>
+                                                    </div>
+                                                    <div class="modal-footer border-top border-secondary">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                                                        <button type="submit" class="btn btn-gold">Confirmar Check-in</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="6">
+                                            <div class="empty-state">
+                                                <div style="font-size: 2rem;">🛏️</div>
+                                                <p class="mb-0 mt-2">No hay habitaciones registradas todavía.</p>
+                                            </div>
                                         </td>
                                     </tr>
                                     {% endfor %}
@@ -146,17 +279,17 @@
                 </div>
             </div>
 
-            <!-- Columna Derecha: Pedidos a Cocina / Restaurante -->
+            <!-- Pedidos a Cocina -->
             <div class="col-lg-4">
-                <div class="card shadow-sm border-0 mb-4">
-                    <div class="card-header bg-dark text-white">
-                        <h5 class="mb-0"><i class="bi bi-cup-hot"></i> Pedir Comida a Habitación</h5>
+                <div class="card card-custom mb-4">
+                    <div class="card-header bg-transparent border-bottom border-secondary py-3">
+                        <h5 class="mb-0 text-gold fw-bold fs-6">🍽️ Pedir Comida a Habitación</h5>
                     </div>
                     <div class="card-body">
                         <form action="{{ url_for('pedir_comida') }}" method="POST">
                             <div class="mb-3">
-                                <label for="habitacion_num" class="form-label">Habitación Ocupada</label>
-                                <select class="form-select form-select-sm" id="habitacion_num" name="habitacion_num" required>
+                                <label class="form-label small text-muted">Habitación Ocupada</label>
+                                <select class="form-select form-select-sm" name="habitacion_num" required>
                                     <option value="" disabled selected>Seleccione habitación...</option>
                                     {% for hab in habitaciones %}
                                         {% if hab.estado == 'Ocupada' %}
@@ -166,31 +299,27 @@
                                 </select>
                             </div>
                             <div class="mb-3">
-                                <label for="platillo_nombre" class="form-label">Platillo / Bebida</label>
-                                <select class="form-select form-select-sm" id="platillo_nombre" name="platillo_nombre" required>
-                                    <option value="Lomo Saltado">Lomo Saltado (S/. 35.00)</option>
-                                    <option value="Arroz con Pato">Arroz con Pato (S/. 40.00)</option>
-                                    <option value="Ceviche Clásico">Ceviche Clásico (S/. 38.00)</option>
-                                    <option value="Ají de Gallina">Ají de Gallina (S/. 30.00)</option>
-                                    <option value="Seco de Carne">Seco de Carne (S/. 36.00)</option>
-                                    <option value="Bebida / Gaseosa 500ml">Bebida / Gaseosa 500ml (S/. 8.00)</option>
+                                <label class="form-label small text-muted">Platillo / Bebida</label>
+                                <select class="form-select form-select-sm" name="platillo_nombre" required>
+                                    {% for nombre, precio in menu_platillos.items() %}
+                                    <option value="{{ nombre }}">{{ nombre }} (${{ "%.0f"|format(precio) }})</option>
+                                    {% endfor %}
                                 </select>
                             </div>
-                            <button type="submit" class="btn btn-dark btn-sm w-100 fw-bold">Enviar Pedido a Cocina</button>
+                            <button type="submit" class="btn btn-gold btn-sm w-100 fw-bold">Enviar Pedido a Cocina</button>
                         </form>
                     </div>
                 </div>
 
-                <!-- Tabla de Pedidos Activos -->
-                <div class="card shadow-sm border-0">
-                    <div class="card-header bg-secondary text-white">
-                        <h5 class="mb-0 fs-6"><i class="bi bi-receipt"></i> Pedidos en Curso</h5>
+                <div class="card card-custom">
+                    <div class="card-header bg-transparent border-bottom border-secondary py-3">
+                        <h5 class="mb-0 text-gold fw-bold fs-6">🧾 Pedidos en Curso</h5>
                     </div>
                     <div class="card-body p-2">
                         <div class="table-responsive">
                             <table class="table table-sm align-middle mb-0" style="font-size: 0.85rem;">
                                 <thead>
-                                    <tr>
+                                    <tr class="text-muted">
                                         <th>Hab.</th>
                                         <th>Platillo</th>
                                         <th>Estado</th>
@@ -200,22 +329,22 @@
                                 <tbody>
                                     {% for p in pedidos %}
                                     <tr>
-                                        <td><strong>#{{ p.habitacion_num }}</strong></td>
+                                        <td><strong class="text-gold">#{{ p.habitaciones.numero if p.habitaciones else '?' }}</strong></td>
                                         <td>{{ p.platillo_nombre }}</td>
                                         <td>
-                                            <span class="badge bg-{{ 'warning text-dark' if p.estado == 'En Preparación' else 'success' }}">
+                                            <span class="badge badge-status {{ 'bg-warning text-dark' if p.estado == 'En Preparación' else 'bg-success' }}">
                                                 {{ p.estado }}
                                             </span>
                                         </td>
                                         <td>
-                                            <a href="{{ url_for('cambiar_estado_pedido', pedido_id=p.id) }}" class="btn btn-outline-dark btn-sm py-0 px-1" style="font-size: 0.75rem;">
-                                                Cambiar
-                                            </a>
+                                            <form action="{{ url_for('cambiar_estado_pedido', pedido_id=p.id) }}" method="POST" class="d-inline">
+                                                <button type="submit" class="btn btn-outline-light btn-sm py-0 px-1" style="font-size: 0.75rem;">Cambiar</button>
+                                            </form>
                                         </td>
                                     </tr>
                                     {% else %}
                                     <tr>
-                                        <td colspan="4" class="text-center text-muted py-2">No hay pedidos activos.</td>
+                                        <td colspan="4" class="text-center text-muted py-3">No hay pedidos activos.</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -227,23 +356,23 @@
         </div>
     </div>
 
-    <!-- Modal para Agregar Nueva Habitación -->
-    <div class="modal fade" id="modalAgregarHabitacion" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+    <!-- Modal: Nueva Habitación -->
+    <div class="modal fade" id="modalAgregarHabitacion" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content">
+            <div class="modal-content card-custom text-light">
                 <form action="{{ url_for('agregar_habitacion') }}" method="POST">
-                    <div class="modal-header bg-primary text-white">
-                        <h5 class="modal-title" id="modalLabel">Registrar Nueva Habitación</h5>
+                    <div class="modal-header border-bottom border-secondary">
+                        <h5 class="modal-title text-gold fw-bold">Registrar Nueva Habitación</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label for="numero" class="form-label">Número de Habitación</label>
-                            <input type="text" class="form-control" id="numero" name="numero" placeholder="Ej. 121" required>
+                            <label class="form-label">Número de Habitación</label>
+                            <input type="text" class="form-control" name="numero" placeholder="Ej. 121" required>
                         </div>
                         <div class="mb-3">
-                            <label for="tipo" class="form-label">Tipo de Habitación</label>
-                            <select class="form-select" id="tipo" name="tipo" required>
+                            <label class="form-label">Tipo de Habitación</label>
+                            <select class="form-select" name="tipo" required>
                                 <option value="Simple Deluxe">Simple Deluxe</option>
                                 <option value="Habitación Doble">Habitación Doble</option>
                                 <option value="Doble Ejecutiva">Doble Ejecutiva</option>
@@ -253,19 +382,22 @@
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="precio" class="form-label">Precio por Noche (S/.)</label>
-                            <input type="number" step="0.5" class="form-control" id="precio" name="precio" placeholder="100.0" required>
+                            <label class="form-label">Precio por Noche ($)</label>
+                            <input type="number" step="0.5" min="0.5" class="form-control" name="precio" placeholder="100.0" required>
                         </div>
                     </div>
-                    <div class="modal-footer">
+                    <div class="modal-footer border-top border-secondary">
                         <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary btn-sm">Guardar Habitación</button>
+                        <button type="submit" class="btn btn-gold btn-sm">Guardar Habitación</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
